@@ -24,8 +24,8 @@ Request Parameters
 | `app_id`       | string | Y        | unique string we dispatch to your application                |
 | action         | string | Y        | api name                                                     |
 | args           | json   | Y        | json string contains all params required                     |
-| timestamp      | string | Y        | timestamp when sending a request, unit: **millisecond. **Note: any request larger than 30 seconds will be discard. |
-| sign           | string | Y        | request signature, see details instruction in **\*API*** **Authentication** section |
+| timestamp      | string | Y        | timestamp when sending a request, unit: millisecond. <br />Note: any request larger than 30 seconds will be discard. |
+| sign           | string | Y        | request signature, see details instruction in API Authentication  section |
 
 sample：
 
@@ -158,7 +158,7 @@ detail for the *balances* array item :
 
 | parameter name | type   | required | description                                                  |
 | -------------- | ------ | -------- | ------------------------------------------------------------ |
-| notify_url     | string | Y        | Callback url. Our server will inform your application of the recharge or withdraw result asynchronously.  The callback request will also contains the *sign* param, and we strongly recommend you to verify the sign param using HmacSHA256 algorithm.*sample:*<https://test.dream.lucky.fun/> valid [https://test.dream.lucky.fun](https://test.dream.lucky.fun/)?a=b invalid, callback url shouldn't contain any params. |
+| notify_url     | string | Y        | Callback url. Our server will inform your application of the recharge or withdraw result asynchronously.  The callback request will also contains the *sign* param, and we strongly recommend you to verify the sign param using HmacSHA256 algorithm.<br />*sample:*<https://test.dream.lucky.fun/> valid <br />[https://test.dream.lucky.fun](https://test.dream.lucky.fun/)?a=b invalid, callback url shouldn't contain any params. |
 
 ## response data
 
@@ -240,7 +240,7 @@ Note: If your application process the callback request successfully, please just
 
 Our server will callback periodically if received fail result, until receive success string, or timeout after 24 hours.
 
-8、changes about user balance account 
+## 8、changes about user balance account 
 
 Any changes about user balance account should inform our server, except withdraw and crypto currency recharge from third party wallet.
 
