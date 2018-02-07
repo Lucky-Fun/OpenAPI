@@ -1,35 +1,33 @@
-生产环境URL：
+Production server URL：
 
 <https://dream.lucky.fun/>
 
-沙盒测试环境URL：
+Test server URL：
 
 <https://test.dream.lucky.fun/>
 
-合作方接口调用方应遵从以下规范：
+Any applications should comply the following constraints:
 
-1. 使用HTTP POST方式发送请求（Content-Type: application/x-www-form-urlencoded）；
-2. 平台以JSON的形式返回数据（Content-Type: application/json;charset=utf-8）；
-3. 为简化开发，url里不再包含参数，所有参数均以表单形式（application/x-www-form-urlencoded）提交；
-4. 请求参数中，同一个参数名只出现一次，不允许出现 name=value1&name=value2 之类的多值参数。
+1. Use HTTP POST method to send request（Content-Type: application/x-www-form-urlencoded）；
+2. Server will response in JSON format（Content-Type: application/json;charset=utf-8）；
+3. To simplify development, request url shouldn't contain any param,  all params should submit in form（application/x-www-form-urlencoded）；
+4. Param's name in request suppose to be unique. 
 
-接口权限开通后，会为每个合作机构分配 **app_id **及 **app_secret**。其中，app_secret** 不在请求中发送，仅用于签名和验签，请妥善保管，避免泄漏。**
+All APIs require each request to be signed.  After Authentication, we will send you **app_id **and **app_secret**.  You should take great care to store your app_secret. If someone obtains your api_secret, they will able to do whatever he( or she) wants. 
 
-**出于安全考虑，所有对外接口只有白名单ip才能访问，请合作方确定服务器ip后通知平台加入白名单。**
+For security purpose, you should inform us your production server IP and we will add it in our white list. Any request whose ip beyonds white list will be rejected.
 
-分配细节请咨询商务。
+Request Parameters 
 
-### 请求参数
+| parameter name | type   | required | description                                                  |
+| -------------- | ------ | -------- | ------------------------------------------------------------ |
+| `app_id`       | string | Y        | unique string we dispatch to your application                |
+| action         | string | Y        | api name                                                     |
+| args           | json   | Y        | json string contains all params required                     |
+| timestamp      | string | Y        | timestamp when sending a request, unit: **millisecond. **Note: any request larger than 30 seconds will be discard. |
+| sign           | string | Y        | request signature, see details instruction in **\*API*** **Authentication** section |
 
-| 参数名称  | 类型   | 必选项 | 参数说明                                                     |
-| --------- | ------ | ------ | ------------------------------------------------------------ |
-| `app_id`  | string | 是     | 平台分配给合作方的唯一标识                                   |
-| action    | string | 是     | 接口标识，用来唯一标记当前调用的接口                         |
-| args      | json   | 是     | 接口的业务参数，详见各接口的请求参数说明                     |
-| timestamp | string | 是     | 时间戳，单位：毫秒。超过30秒的请求将被视为无效请求           |
-| sign      | string | 是     | 请求签名，详见[请求、返回参数签名] |
-
-请求示例：
+sample：
 
 ```
 app_id: "123456",
@@ -39,29 +37,31 @@ sign: "1f70971ea7a8814c1735676d25adeb7456007c6510e8bfa0ba8a21432a9cd14c",
 timestamp: "1512114606000"
 ```
 
-### 请求、返回参数签名
+### API Authentication
 
-将所有请求参数（不包含sign）按照参数名称的字典顺序排序（升序），再用 = 和 & 拼接在一起，示例如下:
+All request parameters (**sign** excluded) should be sorted by parameter name ascending,  use = to bind the corresponding parameter value,   and then use & to bind each parameter string together.
+
+*sample*:
 
 ```
 action=recharge&args={"uid":"124d","amount":"44.938","out_trade_no":"5a4f9798971fc03796b7bacc"}&app_id=123456&timestamp=1512114606000
 ```
 
-最后，以 app_secret 为Key对上述字符串以 **HmacSHA256** 算法创建hash，再对hash结果进行base64编码，得到字符串形式的签名。各语言的**HmacSHA256**算法使用代码可以参考[此链接](http://blog.csdn.net/js_sky/article/details/49024959)。
+finally, use  **HmacSHA256 **algorithm whose key is app_secret  to create hash, and then use base64 to encode the hash, and the result is *sign*. For more details about **HmacSHA256** algorithm, please access this website: <http://blog.csdn.net/js_sky/article/details/49024959>
 
-服务端在收到请求参数后，会以服务端记录的 app_secret，按照上述同样的步骤生成签名。如果签名与请求中包含的一致，则签名验证通过，否则拒绝请求。
+When our server receive a request, it will obtain the corresponding app_secret via *app_id* param, and calculate *sign* using **HmacSHA256** algorithm mentioned above. If the *sign* param in request is different from the server one, the request will be rejected.
 
-返回参数的签名用于幸运坊平台回调游戏cp的接口时的签名验证，验证规则同上。
+Note: For some certain API,  our server will callback your application. In this case,  the callback request will also contains the *sign* param, and we strongly recommend you to verify the sign param using HmacSHA256 algorithm.
 
-### 返回参数
+### Response parameters
 
-| 参数名称   | 类型   | 必选项 | 参数说明                                                     |
-| ---------- | ------ | ------ | ------------------------------------------------------------ |
-| error_code | int    | 是     | 非0表示发生错误，如传参错误、签名错误、服务器错误等。v1版：只要发生错误，error_code都为1，不做错误区分。error_msg会给出具体的错误信息 |
-| error_msg  | string | 否     | 如果发生错误，此字段说明原因。如果没发生错误，则不用返回此字段。 |
-| data       | json   | 是     | 接口返回的业务数据，详见各接口的返回参数说明                 |
+| parameter name | type   | required | description                                                  |
+| -------------- | ------ | -------- | ------------------------------------------------------------ |
+| error_code     | int    | Y        | Positive value means errors occur.Error_code will always be 1 if error occurs. We won't give distinct error_code in v1 version, but error_msg will give out details |
+| error_msg      | string | N        | If error_code is positive, this parameter will give out error details. Otherwise, it won't be returned. |
+| data           | json   | Y        | Response for API, in json format.                            |
 
-返回示例：
+*sample*：
 
 ```
 // error
@@ -83,159 +83,151 @@ action=recharge&args={"uid":"124d","amount":"44.938","out_trade_no":"5a4f9798971
 
 # API
 
-# 1、提取幸运币
+# 1、withdraw LUCKY 
 
-通过该接口可以提取幸运币到指定地址，用于游戏cp用户的幸运币提现操作。
-
-## 接口标识
+## api name
 
 > withdraw
 
-## 请求参数
+## request parameter
 
-| 字段名       | 字段类型 | 是否必须 | 描述                               |
-| ------------ | -------- | -------- | ---------------------------------- |
-| out_trade_no | string   | 是       | 游戏cp用户提取幸运币的唯一交易单号 |
-| amount       | string   | 是       | 提现金额                           |
-| address      | string   | 是       | 提现地址                           |
-| uid          | string   | 是       | 游戏cp用户id                       |
-| fee          | string   | 是       | 提币手续费                         |
+| parameter name | type   | required | description                               |
+| -------------- | ------ | -------- | ----------------------------------------- |
+| out_trade_no   | string | Y        | unique transaction id of your application |
+| amount         | string | Y        | withdraw amount                           |
+| address        | string | Y        | withdraw address                          |
+| uid            | string | Y        | user id of your application               |
+| fee            | string | Y        | withdraw fee                              |
 
-## 返回参数
+## response data
 
-none，没有返回错误码则表示绑定成功。
+none
 
-# 2、幸运币提现费率查询
+# 2、query LUCKY withdraw fee  
 
-## 接口标识
+## api name
 
 > estimate_fee
 
-## 请求参数
+## request parameter
 
-无
+none
 
-## 返回参数
+## response data
 
-| 字段名     | 字段类型 | 是否必须 | 描述                      |
-| ---------- | -------- | -------- | ------------------------- |
-| fee        | string   |          | 提现费率，如0.0002 幸运币 |
-| amount_min | string   | 是       | 最小提币金额              |
+| parameter name | type   | required | description                             |
+| -------------- | ------ | -------- | --------------------------------------- |
+| fee            | string | Y        | withdraw fee, 0.0002 LUCKY for example. |
+| amount_min     | string | Y        | minimun withdraw amount                 |
 
-# 3、用户账户余额查询
+# 3、query user balance
 
-查询游戏cp用户幸运币余额
-
-## 接口标识
+## api name
 
 > query_balance
 
-## 请求参数
+## request parameter
 
-| 字段名 | 字段类型 | 是否必须 | 描述                             |
-| ------ | -------- | -------- | -------------------------------- |
-| type   | int      | 否       | 1：LUCKY；2：BTC；3：BCH；4：ETH |
-| uid    | string   | 是       | 游戏cp用户id                     |
+| parameter name | type   | required | description                      |
+| -------------- | ------ | -------- | -------------------------------- |
+| type           | int    | N        | 1: LUCKY; 2: BTC; 3: BCH; 4: ETH |
+| uid            | string | Y        | user id of your application      |
 
-## 返回参数
+## response data
 
-| 参数     | 类型    | 是否必选 | 描述               |
-| -------- | ------- | -------- | ------------------ |
-| balances | array[] | Y        | 不同类型的币种余额 |
+| parameter name | type    | required | description                           |
+| -------------- | ------- | -------- | ------------------------------------- |
+| balances       | array[] | Y        | balance for different crypto currency |
 
-币种余额的结构如下：
+detail for the *balances* array item :
 
-| 参数              | 类型   | 是否必选 | 描述                             |
+| parameter name    | type   | required | description                      |
 | ----------------- | ------ | -------- | -------------------------------- |
-| type              | string | Y        | 1：LUCKY；2：BTC；3：BCH；4：ETH |
-| balance_total     | string | Y        | 总余额                           |
-| balance_available | string | Y        | 可用余额                         |
-| balance_frozen    | string | Y        | 冻结余额                         |
+| type              | string | Y        | 1: LUCKY; 2: BTC; 3: BCH; 4: ETH |
+| balance_total     | string | Y        | total balance                    |
+| balance_available | string | Y        | available balance                |
+| balance_frozen    | string | Y        | frozen balance                   |
 
-# 4、回调URL绑定
+# 4、bind callback URL
 
-为了降低游戏cp的开发成本，提供回调地址绑定接口，游戏cp在具体的接口内完成业务逻辑开发即可。
-
-## 接口标识
+## api name
 
 > bind_url
 
-## 请求参数
+## request parameter
 
-| 字段名     | 字段类型 | 是否必须 | 描述                                                         |
-| ---------- | -------- | -------- | ------------------------------------------------------------ |
-| notify_url | string   | 是       | 回调url。服务器异步通知游戏cp提现、提现结果。服务器在回调游戏cp接口时，也会按照签名规则回传sign参数，请游戏cp务必进行校验签名。样例：<https://test.dream.lucky.fun/> 合法[https://test.dream.lucky.fun](https://test.dream.lucky.fun/)?a=b 非法，回调url不能包含请求参数 |
+| parameter name | type   | required | description                                                  |
+| -------------- | ------ | -------- | ------------------------------------------------------------ |
+| notify_url     | string | Y        | Callback url. Our server will inform your application of the recharge or withdraw result asynchronously.  The callback request will also contains the *sign* param, and we strongly recommend you to verify the sign param using HmacSHA256 algorithm.*sample:*<https://test.dream.lucky.fun/> valid [https://test.dream.lucky.fun](https://test.dream.lucky.fun/)?a=b invalid, callback url shouldn't contain any params. |
 
-## 返回参数
+## response data
 
-none，没有返回错误码则表示绑定成功。
+none
 
-# 5、创建充值地址
+# 5、create recharge address
 
-## 接口标识
+## api name
 
 > create_addr
 
-## 请求参数
+## request parameter
 
-| 字段名 | 字段类型 | 是否必须 | 描述                             |
-| ------ | -------- | -------- | -------------------------------- |
-| type   | int      | 是       | 1：LUCKY；2：BTC；3：BCH；4：ETH |
-| uid    | string   | 是       | 游戏cp用户id                     |
+| parameter name | type   | required | description                      |
+| -------------- | ------ | -------- | -------------------------------- |
+| type           | int    | Y        | 1: LUCKY; 2: BTC; 3: BCH; 4: ETH |
+| uid            | string | Y        | user id of your application      |
 
-返回参数
+## response data
 
-| 字段名  | 字段类型 | 是否必须 | 描述     |
-| ------- | -------- | -------- | -------- |
-| address | string   | 是       | 充币地址 |
+| parameter name | type   | required | description      |
+| -------------- | ------ | -------- | ---------------- |
+| address        | string | Y        | recharge address |
 
-## 6、充值成功后异步通知参数说明
+## 6、callback asynchronously for recharge result
 
-业务参数
+request parameter
 
-| 字段名  | 字段类型 | 是否必须 | 描述                   |
-| ------- | -------- | -------- | ---------------------- |
-| balance | string   | 是       | 用户充值后可用余额     |
-| amount  | string   | 是       | 本次充值金额           |
-| address | string   | 是       | 充值地址               |
-| status  | int      | 是       | 1：成功；2：失败       |
-| txid    | string   | 是       | 区块链上的交易id，唯一 |
+| parameter name | type   | required | description                                 |
+| -------------- | ------ | -------- | ------------------------------------------- |
+| action         | string | Y        | API name. In this case, action is recharge  |
+| args           | json   | Y        | json format and its details are shown below |
+| timestamp      | string | Y        | unit: millisecond                           |
+| sign           | string | Y        | see above                                   |
 
-系统参数
+*args* detail
 
-| 参数名称  | 类型   | 必选项 | 参数说明                                                     |
-| --------- | ------ | ------ | ------------------------------------------------------------ |
-| action    | string | 是     | 接口标识recharge，用来唯一标记当前调用的接口                 |
-| args      | json   | 是     | 接口的业务参数，详见各接口的请求参数说明                     |
-| timestamp | string | 是     | 时间戳，单位：毫秒。                                         |
-| sign      | string | 是     | 请求签名，详见[请求、返回参数签名]  |
+| parameter name | type   | required | description               |
+| -------------- | ------ | -------- | ------------------------- |
+| balance        | string | Y        | balance after withdraw    |
+| amount         | string | Y        | recharge amount           |
+| address        | string | Y        | recharge address          |
+| status         | int    | Y        | 1: success; 2: failure    |
+| txid           | string | Y        | blockchain transaction id |
 
-游戏cp成功处理则返回success
+Note: If your application process the callback request successfully, please just send back success, otherwise return fail 
 
-失败则返回fail
+Our server will callback periodically if received fail result, until receive success string, or timeout after 24 hours.
 
-在fail情况下，平台会周期性地回调相应url，直到接收到success为止。如果24小时后还没收到success，则不再回调。
+## 7、callback asynchronously for withdraw result
 
-## 7、提现成功后异步通知参数说明
+request parameter
 
-业务参数
+| parameter name | type   | required | description                                 |
+| -------------- | ------ | -------- | ------------------------------------------- |
+| action         | string | Y        | API name. In this case, action is withdraw  |
+| args           | json   | Y        | json format and its details are shown below |
+| timestamp      | string | Y        | unit: millisecond                           |
+| sign           | string | Y        | see above                                   |
 
-| 字段名       | 字段类型 | 是否必须 | 描述                                   |
-| ------------ | -------- | -------- | -------------------------------------- |
-| out_trade_no | string   | 是       | 游戏cp用户提取幸运币的唯一交易单号     |
-| status       | int      | 是       | 1：提交中；2：已发送；3：成功；4：失败 |
-| trade_no     | string   | 是       | 平台产生的唯一交易流水号               |
+*args* detail
 
-系统参数
+| parameter name | type   | required | description                                 |
+| -------------- | ------ | -------- | ------------------------------------------- |
+| out_trade_no   | string | Y        | unique transaction id of your application   |
+| status         | int    | Y        | 1: pending; 2: sent; 3: success; 4: failure |
+| trade_no       | string | Y        | unique transaction id of our server         |
 
-| 参数名称  | 类型   | 必选项 | 参数说明                                                     |
-| --------- | ------ | ------ | ------------------------------------------------------------ |
-| action    | string | 是     | 接口标识withdraw，用来唯一标记当前调用的接口                 |
-| args      | json   | 是     | 接口的业务参数，详见各接口的请求参数说明                     |
-| timestamp | string | 是     | 时间戳，单位：毫秒。                                         |
-| sign      | string | 是     | 请求签名，详见[请求、返回参数签名]  |
-
-异步通知报文示例
+*sample:*
 
 ```
 action: "withdraw",
@@ -244,40 +236,36 @@ sign: "1f70971ea7a8814c1735676d25adeb7456007c6510e8bfa0ba8a21432a9cd14c",
 timestamp: "1512114606000"
 ```
 
-游戏cp成功处理则返回success
+Note: If your application process the callback request successfully, please just send back success, otherwise return fail 
 
-失败则返回fail
+Our server will callback periodically if received fail result, until receive success string, or timeout after 24 hours.
 
-在fail情况下，平台会周期性地回调相应url，直到接收到success为止。如果24小时后还没收到success，则不再回调。
+8、changes about user balance account 
 
-# 8、用户账户余额变动
+Any changes about user balance account should inform our server, except withdraw and crypto currency recharge from third party wallet.
 
-除提现及ETH充值外，游戏cp用户数字货币发生的所有账户余额变动，需要通知平台方做扣减。
-
-## 接口标识
+## api name
 
 > money_change
 
-## 请求参数
+## request parameter
 
-| 字段名       | 字段类型 | 是否必须 | 描述                             |
-| ------------ | -------- | -------- | -------------------------------- |
-| coin_type    | int      | 是       | 1：LUCKY；2：BTC；3：BCH；4：ETH |
-| op_type      | int      | 是       | 1：增加；2：扣减                 |
-| out_trade_no | string   | 是       | 外部唯一交易单号                 |
-| uid          | string   | 是       | 用户id                           |
-| amount       | string   | 是       | 变动金额                         |
+| parameter name | type   | required | description                               |
+| -------------- | ------ | -------- | ----------------------------------------- |
+| coin_type      | int    | Y        | 1: LUCKY; 2: BTC; 3: BCH; 4: ETH          |
+| op_type        | int    | Y        | 1: add; 2; minus                          |
+| out_trade_no   | string | Y        | unique transaction id of your application |
+| uid            | string | Y        | user id of your application               |
+| amount         | string | Y        | amount delta                              |
 
-返回参数
+## response data
 
-| 字段名       | 字段类型 | 是否必须 | 描述                 |
-| ------------ | -------- | -------- | -------------------- |
-| balance      | string   | 是       | 用户变动后的账户余额 |
-| amount       | string   | 是       | 变动金额             |
-| out_trade_no | string   | 是       | 外部唯一交易单号     |
-| trade_no     | string   | 是       | 平台唯一交易单号     |
-| status       | int      | 是       | 1：成功；2：失败     |
+| parameter name | type   | required | description                               |
+| -------------- | ------ | -------- | ----------------------------------------- |
+| balance        | string | Y        | balance after changed                     |
+| amount         | string | Y        | amount delta                              |
+| out_trade_no   | string | Y        | unique transaction id of your application |
+| trade_no       | string | Y        | unique transaction id of our server       |
+| status         | int    | Y        | 1: success; 2: failure                    |
 
-如果平台接受失败，请周期性通知平台，24小时候如果平台没反馈则不再通知。
-
-*本文档会不定期进行更新，敬请留意。
+\* This document will be updated regularly, so stay tuned please.
