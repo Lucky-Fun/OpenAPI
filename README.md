@@ -13,7 +13,7 @@ Any applications should comply the following constraints:
 3. To simplify development, request url shouldn't contain any param,  all params should submit in form (application/x-www-form-urlencoded);
 4. Param's name in request suppose to be unique. 
 
-All APIs require each request to be signed.  After Authentication, we will send you **app_id **and **app_secret**.  You should take great care to store your app_secret. If someone obtains your api_secret, they will able to do whatever he( or she) wants. 
+All APIs require each request to be signed.  After Authentication, we will send you app_id  and app_secret.  You should take great care to store your app_secret. If someone obtains your api_secret, they will able to do whatever he( or she) wants. 
 
 For security purpose, you should inform us your production server IP and we will add it in our white list. Any request whose ip beyonds white list will be rejected.
 
@@ -158,7 +158,7 @@ detail for the *balances* array item :
 
 | parameter name | type   | required | description                                                  |
 | -------------- | ------ | -------- | ------------------------------------------------------------ |
-| notify_url     | string | Y        | Callback url. Our server will inform your application of the recharge or withdraw result asynchronously.  The callback request will also contains the *sign* param, and we strongly recommend you to verify the sign param using HmacSHA256 algorithm.<br />*sample:*<https://test.dream.lucky.fun/> valid <br />[https://test.dream.lucky.fun](https://test.dream.lucky.fun/)?a=b invalid, callback url shouldn't contain any params. |
+| notify_url     | string | Y        | Callback url. Our server will inform your application of the recharge or withdraw result asynchronously.  The callback request will also contains the *sign* param, and we strongly recommend you to verify the sign param using HmacSHA256 algorithm.<br />*sample:*<br /><https://test.dream.lucky.fun/> valid <br />[https://test.dream.lucky.fun](https://test.dream.lucky.fun/)?a=b invalid, callback url shouldn't contain any params. |
 
 ## response data
 
