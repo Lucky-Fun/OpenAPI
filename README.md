@@ -1,16 +1,16 @@
-Production server URL：
+Production server URL:
 
 <https://dream.lucky.fun/>
 
-Test server URL：
+Test server URL:
 
 <https://test.dream.lucky.fun/>
 
 Any applications should comply the following constraints:
 
-1. Use HTTP POST method to send request（Content-Type: application/x-www-form-urlencoded）；
-2. Server will response in JSON format（Content-Type: application/json;charset=utf-8）；
-3. To simplify development, request url shouldn't contain any param,  all params should submit in form（application/x-www-form-urlencoded）；
+1. Use HTTP POST method to send request (Content-Type: application/x-www-form-urlencoded);
+2. Server will response in JSON format (Content-Type: application/json;charset=utf-8);
+3. To simplify development, request url shouldn't contain any param,  all params should submit in form (application/x-www-form-urlencoded);
 4. Param's name in request suppose to be unique. 
 
 All APIs require each request to be signed.  After Authentication, we will send you **app_id **and **app_secret**.  You should take great care to store your app_secret. If someone obtains your api_secret, they will able to do whatever he( or she) wants. 
