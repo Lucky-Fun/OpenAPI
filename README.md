@@ -27,7 +27,7 @@
 | action    | string | 是     | 接口标识，用来唯一标记当前调用的接口                         |
 | args      | json   | 是     | 接口的业务参数，详见各接口的请求参数说明                     |
 | timestamp | string | 是     | 时间戳，单位：毫秒。超过30秒的请求将被视为无效请求           |
-| sign      | string | 是     | 请求签名，详见[签名规则](http://39.106.135.222:8090/pages/viewpage.action?pageId=919080#id-%E5%B9%B8%E8%BF%90%E8%AE%A1%E5%88%92%E6%B8%B8%E6%88%8Fcp%E9%A1%B9%E7%9B%AE%E5%AF%B9%E6%8E%A5api-%E7%AD%BE%E5%90%8D%E8%A7%84%E5%88%99) |
+| sign      | string | 是     | 请求签名，详见[请求、返回参数签名] |
 
 请求示例：
 
@@ -208,7 +208,7 @@ none，没有返回错误码则表示绑定成功。
 | action    | string | 是     | 接口标识recharge，用来唯一标记当前调用的接口                 |
 | args      | json   | 是     | 接口的业务参数，详见各接口的请求参数说明                     |
 | timestamp | string | 是     | 时间戳，单位：毫秒。                                         |
-| sign      | string | 是     | 请求签名，详见[签名规则](http://39.106.135.222:8090/pages/viewpage.action?pageId=919080#id-%E5%B9%B8%E8%BF%90%E8%AE%A1%E5%88%92%E6%B8%B8%E6%88%8Fcp%E9%A1%B9%E7%9B%AE%E5%AF%B9%E6%8E%A5api-%E7%AD%BE%E5%90%8D%E8%A7%84%E5%88%99) |
+| sign      | string | 是     | 请求签名，详见[请求、返回参数签名]  |
 
 游戏cp成功处理则返回success
 
@@ -233,7 +233,7 @@ none，没有返回错误码则表示绑定成功。
 | action    | string | 是     | 接口标识withdraw，用来唯一标记当前调用的接口                 |
 | args      | json   | 是     | 接口的业务参数，详见各接口的请求参数说明                     |
 | timestamp | string | 是     | 时间戳，单位：毫秒。                                         |
-| sign      | string | 是     | 请求签名，详见[签名规则](http://39.106.135.222:8090/pages/viewpage.action?pageId=919080#id-%E5%B9%B8%E8%BF%90%E8%AE%A1%E5%88%92%E6%B8%B8%E6%88%8Fcp%E9%A1%B9%E7%9B%AE%E5%AF%B9%E6%8E%A5api-%E7%AD%BE%E5%90%8D%E8%A7%84%E5%88%99) |
+| sign      | string | 是     | 请求签名，详见[请求、返回参数签名]  |
 
 异步通知报文示例
 
