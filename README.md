@@ -82,22 +82,17 @@ Note: For some certain API,  our server will callback your application. In this 
 ```
 
 # API
-
-# 1、withdraw LUCKY 
+# 1、bind callback URL
 
 ## api name
 
-> withdraw
+> bind_url
 
 ## request parameter
 
-| parameter name | type   | required | description                               |
-| -------------- | ------ | -------- | ----------------------------------------- |
-| out_trade_no   | string | Y        | unique transaction id of your application |
-| amount         | string | Y        | withdraw amount                           |
-| address        | string | Y        | withdraw address                          |
-| uid            | string | Y        | user id of your application               |
-| fee            | string | Y        | withdraw fee                              |
+| parameter name | type   | required | description                                                  |
+| -------------- | ------ | -------- | ------------------------------------------------------------ |
+| notify_url     | string | Y        | Callback url. Our server will inform your application of the recharge or withdraw result asynchronously.  The callback request will also contains the *sign* param, and we strongly recommend you to verify the sign param using HmacSHA256 algorithm.<br />*sample:*<br /><https://test.dream.lucky.fun/> valid <br />[https://test.dream.lucky.fun](https://test.dream.lucky.fun/)?a=b invalid, callback url shouldn't contain any params. |
 
 ## response data
 
@@ -148,23 +143,8 @@ detail for the *balances* array item :
 | balance_available | string | Y        | available balance                |
 | balance_frozen    | string | Y        | frozen balance                   |
 
-# 4、bind callback URL
 
-## api name
-
-> bind_url
-
-## request parameter
-
-| parameter name | type   | required | description                                                  |
-| -------------- | ------ | -------- | ------------------------------------------------------------ |
-| notify_url     | string | Y        | Callback url. Our server will inform your application of the recharge or withdraw result asynchronously.  The callback request will also contains the *sign* param, and we strongly recommend you to verify the sign param using HmacSHA256 algorithm.<br />*sample:*<br /><https://test.dream.lucky.fun/> valid <br />[https://test.dream.lucky.fun](https://test.dream.lucky.fun/)?a=b invalid, callback url shouldn't contain any params. |
-
-## response data
-
-none
-
-# 5、create recharge address
+# 4、create recharge address
 
 ## api name
 
@@ -183,7 +163,7 @@ none
 | -------------- | ------ | -------- | ---------------- |
 | address        | string | Y        | recharge address |
 
-## 6、callback asynchronously for recharge result
+# 5、callback asynchronously for recharge result
 
 request parameter
 
@@ -208,7 +188,27 @@ Note: If your application process the callback request successfully, please just
 
 Our server will callback periodically if received fail result, until receive success string, or timeout after 24 hours.
 
-## 7、callback asynchronously for withdraw result
+# 6、withdraw LUCKY 
+
+## api name
+
+> withdraw
+
+## request parameter
+
+| parameter name | type   | required | description                               |
+| -------------- | ------ | -------- | ----------------------------------------- |
+| out_trade_no   | string | Y        | unique transaction id of your application |
+| amount         | string | Y        | withdraw amount                           |
+| address        | string | Y        | withdraw address                          |
+| uid            | string | Y        | user id of your application               |
+| fee            | string | Y        | withdraw fee                              |
+
+## response data
+
+none
+
+# 7、callback asynchronously for withdraw result
 
 request parameter
 
@@ -240,7 +240,8 @@ Note: If your application process the callback request successfully, please just
 
 Our server will callback periodically if received fail result, until receive success string, or timeout after 24 hours.
 
-## 8、changes about user balance account 
+
+# 8、changes about user balance account 
 
 Any changes about user balance account should inform our server, except withdraw and crypto currency recharge from third party wallet.
 
